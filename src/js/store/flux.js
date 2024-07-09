@@ -1,45 +1,83 @@
 const getState = ({ getStore, getActions, setStore }) => {
-	return {
-		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
-		},
-		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
-			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
-
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
-
-				//reset the global store
-				setStore({ demo: demo });
-			}
-		}
-	};
-};
-
-export default getState;
+    const apiUrl = "https://www.swapi.tech/api";
+    return {
+      store: {
+        people: [],
+        planets: [],
+        species: [],
+        fav: []
+      },
+      actions: {
+        swapiFetch: async (item) => {
+          try {
+            const response = await fetch(`${apiUrl}/${item}`);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            setStore({ [item]: data.results });
+            return data.results;
+          } catch (error) {
+            console.error("Error en swapiFetch:", error);
+          }
+        },
+        getPeople: async (uid) => {
+          try {
+            const response = await fetch(`${apiUrl}/people/${uid}`);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.result.properties;
+          } catch (error) {
+            console.error("Error en getPeople:", error);
+          }
+        },
+        getSpecies: async (uid) => {
+          try {
+            const response = await fetch(`${apiUrl}/species/${uid}`);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.result.properties;
+          } catch (error) {
+            console.error("Error en getSpecies:", error);
+          }
+        },
+        getPlanets: async (uid) => {
+          try {
+            const response = await fetch(`${apiUrl}/planets/${uid}`);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.result.properties;
+          } catch (error) {
+            console.error("Error en getPlanets:", error);
+          }
+        },
+        addFavorite: (item) => {
+          const store = getStore();
+          const favIndex = store.fav.findIndex(fav => fav.uid === item.uid && fav.category === item.category);
+          let newFavList = [...store.fav];
+          if (favIndex >= 0) {
+            // Remove from favorites if already in the list
+            newFavList.splice(favIndex, 1);
+          } else {
+            // Add to favorites if not in the list
+            newFavList.push(item);
+          }
+          setStore({ fav: newFavList });
+        },
+        removeFavorite: (item) => {
+          const store = getStore();
+          const newFavList = store.fav.filter(fav => !(fav.uid === item.uid && fav.category === item.category));
+          setStore({ fav: newFavList });
+        }
+      }
+    };
+  };
+  
+  export default getState;
+  
