@@ -1,3 +1,4 @@
+// src/views/Home.js
 import React, { useContext, useEffect } from "react";
 import "../../styles/home.css";
 import { Context } from "../store/appContext";
@@ -27,7 +28,7 @@ export const Home = () => {
                             height={person.height}
                             gender={person.gender}
                             uid={person.uid}
-                            category="characters"
+                            category="people"
                         />
                     </div>
                 ))}
